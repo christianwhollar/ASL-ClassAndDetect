@@ -1,13 +1,21 @@
-import sys
-import os
- 
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
+from data.raw.download_data import *
 
-from constants import *
-from roboflow import Roboflow
-
-def download_ASL_robowflow(raw_dir):
-    rf = Roboflow(api_key=ROBOFLOW_KEY, model_format="yolov7")
-    rf.workspace().project(ROBOWFLOW_PROJECT).version(ROBOWFLOW_VERSION).download(location=raw_dir)
+class MakeDataset():
+    
+    def __init__(self):
+        self.DownloadData = DownloadData()
+        self.KaggleStatus = False
+        self.RoboFlowStatus = False
+        
+        self.update_dataset_status()
+        self.dataset_download()
+        
+    def update_dataset_status(self):
+        if True:
+            self.KaggleStatus = True
+        
+    def dataset_download(self):
+        if self.KaggleStatus:
+            print('Kaggle Dataset Downloading...')
+            # self.DownloadData.download_kaggle()
+            print('Kaggle Dataset Download Complete!')

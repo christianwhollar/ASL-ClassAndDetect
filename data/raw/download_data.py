@@ -2,7 +2,7 @@ from constants import *
 from kaggle.api.kaggle_api_extended import KaggleApi
 import os
 
-class download_data():
+class DownloadData():
     
     def __init__(self):
         os.environ['KAGGLE_USERNAME'] = KAGGLE_USERNAME
@@ -13,6 +13,6 @@ class download_data():
         api.authenticate()
         api.dataset_download_files(DATASET_NAME, path = PATH_NAME, unzip=True)
         
-if __name__ == '__main__':
-    dd = download_data()
-    dd.download_kaggle()
+    # def download_obowflow(raw_dir):
+    #     rf = Roboflow(api_key=ROBOFLOW_KEY, model_format="yolov7")
+    #     rf.workspace().project(ROBOWFLOW_PROJECT).version(ROBOWFLOW_VERSION).download(location=raw_dir)
