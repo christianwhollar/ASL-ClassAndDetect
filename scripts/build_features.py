@@ -3,7 +3,7 @@ from torchvision import transforms, datasets
 
 class BuildFeatures():
     
-    def __init__(self, batch_size = '', train_path = '', valid_path = '', test_path = ''):
+    def __init__(self, batch_size = -1, train_path = '', valid_path = '', test_path = ''):
         self.batch_size = batch_size
         self.train_path = train_path
         self.valid_path = valid_path
@@ -25,7 +25,9 @@ class BuildFeatures():
     def build_data(self):
         self.train_data = datasets.ImageFolder(self.train_path, transform = self.train_transforms)
         self.test_data = datasets.ImageFolder(self.valid_path, transform = self.test_transforms)
-
+        return self.train_data, self.test_data
+    
     def build_dataloaders(self):
         self.trainloader = torch.utils.data.DataLoader(self.train_data, batch_size=512, shuffle=True)
         self.testloader = torch.utils.data.DataLoader(self.test_data, batch_size=512)
+        return self.trainloader, self.testloader
