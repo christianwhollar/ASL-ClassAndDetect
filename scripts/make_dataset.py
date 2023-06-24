@@ -17,5 +17,5 @@ class MakeDataset():
     def dataset_download(self):
         if self.KaggleStatus:
             print('Kaggle Dataset Downloading...')
-            # self.DownloadData.download_kaggle()
+            self.DownloadData.download_kaggle()
             print('Kaggle Dataset Download Complete!')
