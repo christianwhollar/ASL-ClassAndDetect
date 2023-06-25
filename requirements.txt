@@ -1,5 +1,13 @@
 colorama==0.4.6
+joblib==1.2.0
 kaggle==1.5.13
+numpy==1.25.0
+pandas==2.0.2
+Pillow==9.5.0
+Pillow==9.5.0
+scikit_learn==1.2.2
+skimage==0.0
+streamlit==1.23.1
 torch==2.0.1
 torchvision==0.15.2
 tqdm==4.65.0

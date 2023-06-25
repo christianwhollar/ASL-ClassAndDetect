@@ -13,8 +13,20 @@ import os
 import pickle
 
 class ModelSetup():
+    '''
+    Generic PyTorch Model Class
+    4 Parts: Setup, Train, Test, & Export
+    '''
     
     def __init__(self, train_data, trainloader, test_data, test_loader, model = ''):
+        '''
+        Setup Train/Test Data & Loaders
+        Import Model From TorchVision
+        Args:
+            None
+        Returns:
+            None
+        '''
         self.train_data = train_data
         self.train_loader = trainloader
         self.test_data = test_data
@@ -31,59 +43,84 @@ class ModelSetup():
             self.model = models.resnet18(pretrained=True)
             
     def setup(self):
+        '''
+        Setup Model Structure, Loss Function, Optimizer, LR Scheduler
+        Args:
+            None
+        Returns:
+            None
+        '''
+        
+        # Require Grad to False for Raw Model
         for param in self.model.parameters():
             param.requires_grad = False
-            
+        
+        # Structure
         self.model.classifier = nn.Sequential(nn.Dropout(p=0.6, inplace=False),
                                 nn.Linear(in_features=1280, out_features=39, bias=True),
                                 nn.LogSoftmax(dim=1))
         
+        # Require Grad to True for New Layers
         for p in self.model.features[-3:].parameters():
             p.requires_grad = True  
             
-        # choose your loss function
+        # Loss Func
         self.criterion = nn.NLLLoss()
 
-        # define optimizer to train only the classifier and the previous three block.
+        # Adam Optimizer
         self.optimizer = optim.Adam([{'params':self.model.features[-1].parameters()},
                                 {'params':self.model.features[-2].parameters()},
                                 {'params':self.model.features[-3].parameters()},
                                 {'params':self.model.classifier.parameters()}], lr=0.0005)
 
-        # define Learning Rate scheduler to decrease the learning rate by multiplying it by 0.1 after each epoch on the data.
+        # Learning Rate Scheduler 
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=1, gamma=0.1)
     
     def train(self):
+        '''
+        Train Input Model via PyTorch
+        Args:
+            None
+        Returns:
+            None
+        '''
+        
+        # Loop Params
         epochs = 2
         step = 0
         steps = math.ceil(len(self.train_data)/(self.train_loader.batch_size))
-
         running_loss = 0
         print_every = 20
+        
+        # Loss Lists
         trainlossarr=[]
         testlossarr=[]
 
+        # Device Setup
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.to(device)
         
+        # Epochs
         for epoch in range(epochs):
+            # Status Print
             print(Style.RESET_ALL)
             print(f"--------------------------------- START OF EPOCH [ {epoch+1} ] >>> LR =  {self.optimizer.param_groups[-1]['lr']} ---------------------------------\n")
             
+            # For Input, Class in Train Loader
             for inputs, labels in tqdm(self.train_loader,desc=Fore.GREEN +f"* PROGRESS IN EPOCH {epoch+1} ",file=sys.stdout):
                 self.model.train()
                 step += 1
                 inputs=inputs.to(device)
                 labels=labels.to(device)
 
+                # Pytorch Movement
                 self.optimizer.zero_grad()
-
                 props = self.model.forward(inputs)
-                
                 loss = self.criterion(props, labels)
                 loss.backward()
                 self.optimizer.step()
 
+                # Inc by Loss
                 running_loss += loss.item()
 
                 if (step % print_every == 0) or (step==steps):
@@ -91,25 +128,30 @@ class ModelSetup():
                     accuracy = 0
                     self.model.eval()
                     with torch.no_grad():
+                        # Test Loader Iteration
                         for inputs, labels in self.test_loader:
+                            
                             inputs, labels = inputs.to(device), labels.to(device)
+                            
+                            # PyTroch Movement
                             props = self.model.forward(inputs)
                             batch_loss = self.criterion(props, labels)
-
                             test_loss += batch_loss.item()
 
-                            # Calculate accuracy
+                            # Accuracy
                             ps = torch.exp(props)
                             top_p, top_class = ps.topk(1, dim=1)
                             equals = top_class == labels.view(*top_class.shape)
-                            accuracy += torch.mean(equals.type(torch.FloatTensor)).item()     
-
+                            accuracy += torch.mean(equals.type(torch.FloatTensor)).item()    
+                             
+                    # Print Step, Train, Test Loss/Acc Update
                     tqdm.write(f"Epoch ({epoch+1} of {epochs}) ... "
                         f"Step  ({step:3d} of {steps}) ... "
                         f"Train loss: {running_loss/print_every:.3f} ... "
                         f"Test loss: {test_loss/len(self.test_loader):.3f} ... "
                         f"Test accuracy: {accuracy/len(self.test_loader):.3f} ")
                     
+                    # Update Lists
                     trainlossarr.append(running_loss/print_every)
                     testlossarr.append(test_loss/len(self.test_loader))
                     running_loss = 0        
@@ -118,45 +160,62 @@ class ModelSetup():
             step=0
     
     def test(self):
+        '''
+        Calculate Preds/Acts for Test Data
+        Acc, Recall Values
+        Args:
+            None
+        Returns:
+            None
+        '''
         print('Entering Test...')
+        
+        # Setup Class Reqs, Device Setup
         model = self.model
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model.to(device)
         test_loader = self.test_loader
+        
+        # Classes From Test Data
         classes=self.test_data.class_to_idx
 
-        # Turn autograd off
+        # Turn Autograd Off
         with torch.no_grad():
 
-            # Set the model to evaluation mode
+            # Model to Eval Mode
             model.eval()
 
-            # Set up lists to store true and predicted values
+            # Lists for Acts, Preds
             y_true = []
             test_preds = []
 
-            # Calculate the predictions on the test set and add to list
+            # Calculate Preds, Add Pred/Actual to List
             test_count = 1
             for data in test_loader:
                 inputs, labels = data[0].to(device), data[1].to(device)
-                # Feed inputs through model to get raw scores
+                # Get Raw Scores
                 logits = model.forward(inputs)
-                # Convert raw scores to probabilities (not necessary since we just care about discrete probs in this case)
+                
+                # Raw Scores to Probabilities
                 probs = F.softmax(logits,dim=1)
-                # Get discrete predictions using argmax
+                
+                # Preds From Probs
                 preds = np.argmax(probs.cpu().numpy(),axis=1)
-                # Add predictions and actuals to lists
+                
+                # Extend Predictions/Actuals to List
                 test_preds.extend(preds)
                 y_true.extend(labels.cpu())
+                
+                # Print Test Update Per Iteration
                 print('Test ' + str(test_count) + ' completed! ' + str(len(test_loader) - test_count) + ' tests remaining...')
                 test_count += 1
                 
-            # Calculate the accuracy
+            # Calculate Acc
             test_preds = np.array(test_preds)
             y_true = np.array(y_true)
             test_acc = np.sum(test_preds == y_true)/y_true.shape[0]
             
-            # Recall for each class
+            # Calculate Recall for Each Class
             recall_vals = []
             for i in range(len(classes)):
                 class_idx = np.argwhere(y_true==i)
@@ -165,8 +224,10 @@ class ModelSetup():
                 recall = correct / total
                 recall_vals.append(recall)
                 
+        # Print Test Acc
         print('Test set accuracy is {:.3f}'.format(test_acc))
         
+        # Print Recall Values for Each Class
         for c, idx in classes.items():
             print('For class {}, recall is {}'.format(c,recall_vals[idx]))
             
@@ -175,6 +236,13 @@ class ModelSetup():
         return test_acc, recall
     
     def export(self):        
+        '''
+        Export Trained Model to .pkl Format
+        Args:
+            None
+        Returns:
+            None
+        '''
         outfile = os.getcwd() + '/models/resnet_asl_letnum.pkl'
         
         with open(outfile,'wb') as pickle_file:

@@ -4,8 +4,10 @@ from scripts.model import *
 from scripts.svm_model import *
 
 if __name__ == '__main__':
+    # Make Dataset
     MakeDataset()
     
+    # Build Features
     bf = BuildFeatures(
         batch_size = 512,
         train_path = './data/processed/train',

@@ -15,6 +15,13 @@ class SVMModel():
     Optimal params found using GridSearchCV
     '''
     def __init__(self):
+        '''
+        Stores Class Dictionary, Data Directory
+        Returns:
+            None
+        Args:
+            None
+        '''
         with open('classes.json', 'r') as f:
             self.classes = json.load(f)
         self.datadir = os.getcwd() + '/data/processed/train'
@@ -62,6 +69,7 @@ class SVMModel():
         self.x_train,self.x_test,self.y_train,self.y_test=train_test_split(x,y,test_size=0.20,
                                                random_state=0,
                                                stratify=y)
+        
     def train(self):
         '''
         Train SVM Model
