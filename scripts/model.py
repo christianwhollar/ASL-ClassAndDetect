@@ -79,9 +79,6 @@ class ModelSetup():
                 self.optimizer.zero_grad()
 
                 props = self.model.forward(inputs)
-                print('HERE')
-                print(props.size())
-                print(labels.size())
                 
                 loss = self.criterion(props, labels)
                 loss.backward()
