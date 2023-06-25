@@ -166,10 +166,11 @@ class ModelSetup():
                 
         print('Test set accuracy is {:.3f}'.format(test_acc))
         for i in range(10):
-            print('For class {}, recall is {}'.format(classes[i],recall_vals[i]))
+            print('For class {}, recall is {}'.format(classes[str(i)],recall_vals[i]))
             
         self.test_acc = test_acc
         self.recall_vals = recall_vals
+        return test_acc, recall
     
     def export(self):        
         outfile = os.getcwd() + '/models/mobilenetv2_asl.pkl'

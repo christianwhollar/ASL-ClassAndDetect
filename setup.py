@@ -19,5 +19,5 @@ if __name__ == '__main__':
     ms = ModelSetup(train_data, trainloader, test_data, testloader,model = '/models/mobilenetv2_asl.pkl')
     # ms.setup()
     # ms.train()
-    test_acc,recall_vals = ms.test()
+    test_acc, recall_vals = ms.test()
     # ms.export()
