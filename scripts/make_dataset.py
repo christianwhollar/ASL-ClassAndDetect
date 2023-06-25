@@ -9,6 +9,7 @@ class MakeDataset():
         
         self.update_dataset_status()
         self.dataset_download()
+        self.move_data()
         
     def update_dataset_status(self):
         proc_files= os.listdir(os.getcwd() + '/data/processed')
@@ -23,3 +24,6 @@ class MakeDataset():
             print('Kaggle Dataset Downloading...')
             self.DownloadData.download_kaggle()
             print('Kaggle Dataset Download Complete!')
+            
+    def move_data(self):
+        self.DownloadData.move_data()

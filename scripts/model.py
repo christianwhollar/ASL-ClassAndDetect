@@ -27,6 +27,7 @@ class ModelSetup():
             self.model = CPU_Unpickler(open(filename, 'rb')).load()
             
         else:
+            print('New Model Import')
             self.model = models.mobilenet_v2(pretrained=True)
             
     def setup(self):
@@ -34,7 +35,7 @@ class ModelSetup():
             param.requires_grad = False
             
         self.model.classifier = nn.Sequential(nn.Dropout(p=0.6, inplace=False),
-                                nn.Linear(in_features=1280, out_features=29, bias=True),
+                                nn.Linear(in_features=1280, out_features=37, bias=True),
                                 nn.LogSoftmax(dim=1))
         
         for p in self.model.features[-3:].parameters():
@@ -61,7 +62,6 @@ class ModelSetup():
         print_every = 20
         trainlossarr=[]
         testlossarr=[]
-        oldacc=0
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.to(device)
@@ -79,6 +79,10 @@ class ModelSetup():
                 self.optimizer.zero_grad()
 
                 props = self.model.forward(inputs)
+                print('HERE')
+                print(props.size())
+                print(labels.size())
+                
                 loss = self.criterion(props, labels)
                 loss.backward()
                 self.optimizer.step()

@@ -7,17 +7,20 @@ if __name__ == '__main__':
     
     bf = BuildFeatures(
         batch_size = 512,
-        train_path = './data/processed/asl_alphabet_train',
-        valid_path = './data/processed/asl_alphabet_valid',
-        test_path = './data/processed/asl_alphabet_valid' 
+        train_path = './data/processed/train',
+        valid_path = './data/processed/test',
+        test_path = './data/processed/asl_alphabet_test'
     )
     
     bf.build_transformers()
     train_data, test_data = bf.build_data()
     trainloader, testloader = bf.build_dataloaders()
     
-    ms = ModelSetup(train_data, trainloader, test_data, testloader,model = '/models/mobilenetv2_asl.pkl')
-    # ms.setup()
-    # ms.train()
-    test_acc, recall_vals = ms.test()
-    # ms.export()
+    print(len(trainloader))
+    print(len(testloader))
+    
+    ms = ModelSetup(train_data, trainloader, test_data, testloader,model = '') #/models/mobilenetv2_asl.pkl'
+    ms.setup()
+    ms.train()
+    # test_acc, recall_vals = ms.test()
+    ms.export()
