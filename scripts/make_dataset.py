@@ -11,7 +11,11 @@ class MakeDataset():
         self.dataset_download()
         
     def update_dataset_status(self):
-        if not os.listdir(os.getcwd() + '/data/processed'):
+        proc_files= os.listdir(os.getcwd() + '/data/processed')
+        kaggle_sub = 'asl'
+        kaggle_empty = not any(kaggle_sub in f for f in proc_files)
+        
+        if kaggle_empty:
             self.KaggleStatus = True
         
     def dataset_download(self):
