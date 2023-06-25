@@ -54,7 +54,7 @@ class DownloadData():
                 shutil.move(letter_test_source + '/' + file,test_destination)
             
         # gather all files
-        allfiles = os.listdir(number_train_source)
+        allfiles = os.listdir(number_test_source)
         
         for file in allfiles:
             if os.path.isdir(number_test_source + '/' + file):
