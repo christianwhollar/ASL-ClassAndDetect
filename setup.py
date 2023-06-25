@@ -1,10 +1,9 @@
-import os
 from scripts.make_dataset import *
 from scripts.build_features import *
 from scripts.model import *
 
 if __name__ == '__main__':
-    # MakeDataset()
+    MakeDataset()
     
     bf = BuildFeatures(
         batch_size = 512,
