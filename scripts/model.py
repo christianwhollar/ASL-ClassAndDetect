@@ -135,6 +135,7 @@ class ModelSetup():
             test_preds = []
 
             # Calculate the predictions on the test set and add to list
+            test_count = 0
             for data in test_loader:
                 inputs, labels = data[0].to(device), data[1].to(device)
                 # Feed inputs through model to get raw scores
@@ -146,6 +147,7 @@ class ModelSetup():
                 # Add predictions and actuals to lists
                 test_preds.extend(preds)
                 y_true.extend(labels.cpu())
+                print('Test ' + str(test_count) + ' completed! ' + str(len(test_loader)) + ' tests remaining...')
 
             # Calculate the accuracy
             test_preds = np.array(test_preds)
