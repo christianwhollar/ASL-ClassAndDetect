@@ -16,10 +16,7 @@ if __name__ == '__main__':
     train_data, test_data = bf.build_data()
     trainloader, testloader = bf.build_dataloaders()
     
-    print(len(trainloader))
-    print(len(testloader))
-    
-    ms = ModelSetup(train_data, trainloader, test_data, testloader,model = '') #/models/mobilenetv2_asl.pkl'
+    ms = ModelSetup(train_data, trainloader, test_data, testloader, model = '')#'/models/mobilenetv2_asl_letnum.pkl')
     ms.setup()
     ms.train()
     test_acc, recall_vals = ms.test()

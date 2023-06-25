@@ -28,7 +28,7 @@ class ModelSetup():
             
         else:
             print('New Model Import')
-            self.model = models.mobilenet_v2(pretrained=True)
+            self.model = models.resnet18(pretrained=True)
             
     def setup(self):
         for param in self.model.parameters():
@@ -158,7 +158,7 @@ class ModelSetup():
             
             # Recall for each class
             recall_vals = []
-            for i in range(10):
+            for i in range(len(classes)):
                 class_idx = np.argwhere(y_true==i)
                 total = len(class_idx)
                 correct = np.sum(test_preds[class_idx]==i)
@@ -166,15 +166,16 @@ class ModelSetup():
                 recall_vals.append(recall)
                 
         print('Test set accuracy is {:.3f}'.format(test_acc))
-        for i in range(10):
-            print('For class {}, recall is {}'.format(classes[str(i)],recall_vals[i]))
+        
+        for c, idx in classes.items():
+            print('For class {}, recall is {}'.format(c,recall_vals[idx]))
             
         self.test_acc = test_acc
         self.recall_vals = recall_vals
         return test_acc, recall
     
     def export(self):        
-        outfile = os.getcwd() + '/models/mobilenetv2_asl.pkl'
+        outfile = os.getcwd() + '/models/resnet_asl_letnum.pkl'
         
         with open(outfile,'wb') as pickle_file:
             pickle.dump(self.model, pickle_file)
