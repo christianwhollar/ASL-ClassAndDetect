@@ -28,6 +28,6 @@ class BuildFeatures():
         return self.train_data, self.test_data
     
     def build_dataloaders(self):
-        self.trainloader = torch.utils.data.DataLoader(self.train_data, batch_size=512, shuffle=True)
-        self.testloader = torch.utils.data.DataLoader(self.test_data, batch_size=512)
+        self.trainloader = torch.utils.data.DataLoader(self.train_data, batch_size=512 * 2, shuffle=True)
+        self.testloader = torch.utils.data.DataLoader(self.test_data, batch_size=512 * 2)
         return self.trainloader, self.testloader
