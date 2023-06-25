@@ -163,7 +163,7 @@ class ModelSetup():
                 recall = correct / total
                 recall_vals.append(recall)
                 
-        print('Test set accuracy is {:.3f}'.format(acc))
+        print('Test set accuracy is {:.3f}'.format(test_acc))
         for i in range(10):
             print('For class {}, recall is {}'.format(classes[i],recall_vals[i]))
             
