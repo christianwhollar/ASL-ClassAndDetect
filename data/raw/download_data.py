@@ -9,7 +9,7 @@ class DownloadData():
         os.environ['KAGGLE_USERNAME'] = KAGGLE_USERNAME
         os.environ['KAGGLE_KEY'] = KAGGLE_API_KEY
     
-    def download_kaggle(self, DATASET_NAMES = ['amarinderplasma/alphabets-sign-language','/lexset/synthetic-asl-numbers'], PATH_NAME = './data/processed/'):
+    def download_kaggle(self, DATASET_NAMES = ['amarinderplasma/alphabets-sign-language','lexset/synthetic-asl-numbers'], PATH_NAME = './data/processed/'):
         api = KaggleApi()
         api.authenticate()
         for DATASET_NAME in DATASET_NAMES:
