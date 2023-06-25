@@ -1,25 +1,34 @@
+from scripts.cpu_unpickler import CPU_Unpickler
 from colorama import Fore, Style
 import sys
 import torch
 from torch import nn, optim
+import torch.nn.functional as F
 from torchvision import models
 import ssl
 from tqdm import tqdm
 import math
+import numpy as np
 import os
 import pickle
 
 class ModelSetup():
     
-    def __init__(self, train_data, trainloader, test_data, test_loader):
+    def __init__(self, train_data, trainloader, test_data, test_loader, model = ''):
         self.train_data = train_data
-        self.trainloader = trainloader
+        self.train_loader = trainloader
         self.test_data = test_data
-        self.testloader = test_loader
+        self.test_loader = test_loader
         
         ssl._create_default_https_context = ssl._create_unverified_context
-        self.model = models.mobilenet_v2(pretrained=True)
-
+        
+        if model:
+            filename = os.getcwd() + model
+            self.model = CPU_Unpickler(open(filename, 'rb')).load()
+            
+        else:
+            self.model = models.mobilenet_v2(pretrained=True)
+            
     def setup(self):
         for param in self.model.parameters():
             param.requires_grad = False
@@ -46,7 +55,7 @@ class ModelSetup():
     def train(self):
         epochs = 2
         step = 0
-        steps = math.ceil(len(self.train_data)/(self.trainloader.batch_size))
+        steps = math.ceil(len(self.train_data)/(self.train_loader.batch_size))
 
         running_loss = 0
         print_every = 20
@@ -61,7 +70,7 @@ class ModelSetup():
             print(Style.RESET_ALL)
             print(f"--------------------------------- START OF EPOCH [ {epoch+1} ] >>> LR =  {self.optimizer.param_groups[-1]['lr']} ---------------------------------\n")
             
-            for inputs, labels in tqdm(self.trainloader,desc=Fore.GREEN +f"* PROGRESS IN EPOCH {epoch+1} ",file=sys.stdout):
+            for inputs, labels in tqdm(self.train_loader,desc=Fore.GREEN +f"* PROGRESS IN EPOCH {epoch+1} ",file=sys.stdout):
                 self.model.train()
                 step += 1
                 inputs=inputs.to(device)
@@ -81,7 +90,7 @@ class ModelSetup():
                     accuracy = 0
                     self.model.eval()
                     with torch.no_grad():
-                        for inputs, labels in self.testloader:
+                        for inputs, labels in self.test_loader:
                             inputs, labels = inputs.to(device), labels.to(device)
                             props = self.model.forward(inputs)
                             batch_loss = self.criterion(props, labels)
@@ -97,22 +106,60 @@ class ModelSetup():
                     tqdm.write(f"Epoch ({epoch+1} of {epochs}) ... "
                         f"Step  ({step:3d} of {steps}) ... "
                         f"Train loss: {running_loss/print_every:.3f} ... "
-                        f"Test loss: {test_loss/len(self.testloader):.3f} ... "
-                        f"Test accuracy: {accuracy/len(self.testloader):.3f} ")
+                        f"Test loss: {test_loss/len(self.test_loader):.3f} ... "
+                        f"Test accuracy: {accuracy/len(self.test_loader):.3f} ")
                     
                     trainlossarr.append(running_loss/print_every)
-                    testlossarr.append(test_loss/len(self.testloader))
+                    testlossarr.append(test_loss/len(self.test_loader))
                     running_loss = 0        
                 
             self.scheduler.step()
             step=0
     
     def test(self):
-        self.model.eval()
-        images , labels = next( iter(self.testloader) )
-    
-    def predict(self):
-        return
+        print('Entering Test...')
+        model = self.model
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = model.to(device)
+        test_loader = self.test_loader
+        
+        # Turn autograd off
+        with torch.no_grad():
+
+            # Set the model to evaluation mode
+            model.eval()
+
+            # Set up lists to store true and predicted values
+            y_true = []
+            test_preds = []
+
+            # Calculate the predictions on the test set and add to list
+            for data in test_loader:
+                inputs, labels = data[0].to(device), data[1].to(device)
+                # Feed inputs through model to get raw scores
+                logits = model.forward(inputs)
+                # Convert raw scores to probabilities (not necessary since we just care about discrete probs in this case)
+                probs = F.softmax(logits,dim=1)
+                # Get discrete predictions using argmax
+                preds = np.argmax(probs.cpu().numpy(),axis=1)
+                # Add predictions and actuals to lists
+                test_preds.extend(preds)
+                y_true.extend(labels.cpu())
+
+            # Calculate the accuracy
+            test_preds = np.array(test_preds)
+            y_true = np.array(y_true)
+            test_acc = np.sum(test_preds == y_true)/y_true.shape[0]
+            
+            # Recall for each class
+            recall_vals = []
+            for i in range(10):
+                class_idx = np.argwhere(y_true==i)
+                total = len(class_idx)
+                correct = np.sum(test_preds[class_idx]==i)
+                recall = correct / total
+                recall_vals.append(recall)
+        return test_acc,recall_vals
     
     def export(self):        
         outfile = os.getcwd() + '/models/mobilenetv2_asl.pkl'
