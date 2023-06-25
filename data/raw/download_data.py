@@ -17,7 +17,7 @@ class DownloadData():
     
     def move_data(self):
         letter_train_source = os.getcwd() + '/data/processed/asl_alphabet_train'
-        number_train_source = os.getcwd() + '/data/processed/Test_Nums'
+        number_train_source = os.getcwd() + '/data/processed/Train_Nums'
         train_destination = os.getcwd() + '/data/processed/train/'
         
         letter_test_source = os.getcwd() + '/data/processed/asl_alphabet_valid'

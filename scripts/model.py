@@ -35,7 +35,7 @@ class ModelSetup():
             param.requires_grad = False
             
         self.model.classifier = nn.Sequential(nn.Dropout(p=0.6, inplace=False),
-                                nn.Linear(in_features=1280, out_features=37, bias=True),
+                                nn.Linear(in_features=1280, out_features=39, bias=True),
                                 nn.LogSoftmax(dim=1))
         
         for p in self.model.features[-3:].parameters():
