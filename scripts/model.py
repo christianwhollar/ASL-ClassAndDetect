@@ -122,7 +122,8 @@ class ModelSetup():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model.to(device)
         test_loader = self.test_loader
-        
+        classes=self.test_data.class_to_idx
+
         # Turn autograd off
         with torch.no_grad():
 
@@ -159,7 +160,13 @@ class ModelSetup():
                 correct = np.sum(test_preds[class_idx]==i)
                 recall = correct / total
                 recall_vals.append(recall)
-        return test_acc,recall_vals
+                
+        print('Test set accuracy is {:.3f}'.format(acc))
+        for i in range(10):
+            print('For class {}, recall is {}'.format(classes[i],recall_vals[i]))
+            
+        self.test_acc = test_acc
+        self.recall_vals = recall_vals
     
     def export(self):        
         outfile = os.getcwd() + '/models/mobilenetv2_asl.pkl'

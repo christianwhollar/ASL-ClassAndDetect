@@ -3,7 +3,7 @@ from scripts.build_features import *
 from scripts.model import *
 
 if __name__ == '__main__':
-    # MakeDataset()
+    MakeDataset()
     
     bf = BuildFeatures(
         batch_size = 512,
@@ -19,5 +19,5 @@ if __name__ == '__main__':
     ms = ModelSetup(train_data, trainloader, test_data, testloader,model = '/models/mobilenetv2_asl.pkl')
     # ms.setup()
     # ms.train()
-    ms.test()
+    test_acc,recall_vals = ms.test()
     # ms.export()
