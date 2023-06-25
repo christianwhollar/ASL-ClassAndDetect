@@ -6,6 +6,7 @@ from torchvision import models
 import ssl
 from tqdm import tqdm
 import math
+import os
 import pickle
 
 class ModelSetup():
@@ -113,7 +114,8 @@ class ModelSetup():
     def predict(self):
         return
     
-    def export(self):
-        outfile = './models/mobilenetv2.pkl'
+    def export(self):        
+        outfile = os.getcwd() + '/models/mobilenetv2_asl.pkl'
+        
         with open(outfile,'wb') as pickle_file:
             pickle.dump(self.model, pickle_file)
