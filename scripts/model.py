@@ -3,23 +3,21 @@ import sys
 import torch
 from torch import nn, optim
 from torchvision import models
-import tqdm
+import ssl
+from tqdm import tqdm
 import math
+import pickle
 
 class ModelSetup():
     
     def __init__(self, train_data, trainloader, test_data, test_loader):
+        self.train_data = train_data
+        self.trainloader = trainloader
+        self.test_data = test_data
+        self.test_loader = test_loader
         
+        ssl._create_default_https_context = ssl._create_unverified_context
         self.model = models.mobilenet_v2(pretrained=True)
-        self.epochs = 2
-        self.step = 0
-        self.running_loss = 0
-        self.print_every = 20
-        self.trainlossarr=[]
-        self.testlossarr=[]
-        self.oldacc=0
-
-        self.steps = math.ceil(len(train_data)/(trainloader.batch_size))
 
     def setup(self):
         for param in self.model.parameters():
@@ -33,7 +31,7 @@ class ModelSetup():
             p.requires_grad = True  
             
         # choose your loss function
-        criterion = nn.NLLLoss()
+        self.criterion = nn.NLLLoss()
 
         # define optimizer to train only the classifier and the previous three block.
         self.optimizer = optim.Adam([{'params':self.model.features[-1].parameters()},
@@ -44,15 +42,25 @@ class ModelSetup():
         # define Learning Rate scheduler to decrease the learning rate by multiplying it by 0.1 after each epoch on the data.
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=1, gamma=0.1)
     
-    def train(self, trainloader, n_epochs):
-        
+    def train(self):
+        epochs = 2
+        step = 0
+        steps = math.ceil(len(self.train_data)/(self.trainloader.batch_size))
+
+        running_loss = 0
+        print_every = 20
+        trainlossarr=[]
+        testlossarr=[]
+        oldacc=0
+
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(device)
         
-        for epoch in range(n_epochs):
+        for epoch in range(epochs):
             print(Style.RESET_ALL)
             print(f"--------------------------------- START OF EPOCH [ {epoch+1} ] >>> LR =  {self.optimizer.param_groups[-1]['lr']} ---------------------------------\n")
             
-            for inputs, labels in tqdm(trainloader,desc=Fore.GREEN +f"* PROGRESS IN EPOCH {epoch+1} ",file=sys.stdout):
+            for inputs, labels in tqdm(self.trainloader,desc=Fore.GREEN +f"* PROGRESS IN EPOCH {epoch+1} ",file=sys.stdout):
                 self.model.train()
                 step += 1
                 inputs=inputs.to(device)
@@ -67,7 +75,7 @@ class ModelSetup():
 
                 running_loss += loss.item()
 
-                if (step % self.print_every == 0) or (step==self.steps):
+                if (step % print_every == 0) or (step==steps):
                     test_loss = 0
                     accuracy = 0
                     self.model.eval()
@@ -85,21 +93,27 @@ class ModelSetup():
                             equals = top_class == labels.view(*top_class.shape)
                             accuracy += torch.mean(equals.type(torch.FloatTensor)).item()     
 
-                    tqdm.write(f"Epoch ({epoch+1} of {self.epochs}) ... "
-                        f"Step  ({step:3d} of {self.steps}) ... "
-                        f"Train loss: {running_loss/self.print_every:.3f} ... "
+                    tqdm.write(f"Epoch ({epoch+1} of {epochs}) ... "
+                        f"Step  ({step:3d} of {steps}) ... "
+                        f"Train loss: {running_loss/print_every:.3f} ... "
                         f"Test loss: {test_loss/len(self.testloader):.3f} ... "
                         f"Test accuracy: {accuracy/len(self.testloader):.3f} ")
-                    self.trainlossarr.append(running_loss/self.print_every)
-                    self.testlossarr.append(test_loss/len(self.testloader))
+                    
+                    trainlossarr.append(running_loss/print_every)
+                    testlossarr.append(test_loss/len(self.testloader))
                     running_loss = 0        
                 
             self.scheduler.step()
             step=0
-
     
     def test(self):
-        return
+        self.model.eval()
+        images , labels = next( iter(self.testloader) )
     
     def predict(self):
         return
+    
+    def export(self):
+        outfile = './models/mobilenetv2.pkl'
+        with open(outfile,'wb') as pickle_file:
+            pickle.dump(self.model, pickle_file)
