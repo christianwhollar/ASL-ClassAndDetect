@@ -14,7 +14,7 @@ class ModelSetup():
         self.train_data = train_data
         self.trainloader = trainloader
         self.test_data = test_data
-        self.test_loader = test_loader
+        self.testloader = test_loader
         
         ssl._create_default_https_context = ssl._create_unverified_context
         self.model = models.mobilenet_v2(pretrained=True)
