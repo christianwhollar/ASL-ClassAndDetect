@@ -28,9 +28,9 @@ if __name__ == '__main__':
     ms.export()
     
     # SVM Model - Setup, Train, Test, Export
-    svm = SVMModel()
-    svm.load()
-    svm.train()
-    svm.test()
-    svm.export()
+    # svm = SVMModel()
+    # svm.load()
+    # svm.train()
+    # svm.test()
+    # svm.export()
     
