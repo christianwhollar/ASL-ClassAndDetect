@@ -11,7 +11,7 @@ class MakeDataset():
         self.dataset_download()
         
     def update_dataset_status(self):
-        if True:
+        if not os.listdir('./data/raw/processed'):
             self.KaggleStatus = True
         
     def dataset_download(self):
