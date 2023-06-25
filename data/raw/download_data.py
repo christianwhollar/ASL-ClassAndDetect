@@ -9,11 +9,13 @@ class DownloadData():
         os.environ['KAGGLE_USERNAME'] = KAGGLE_USERNAME
         os.environ['KAGGLE_KEY'] = KAGGLE_API_KEY
     
-    def download_kaggle(self, DATASET_NAMES = ['amarinderplasma/alphabets-sign-language'], PATH_NAME = './data/processed/'):
+    def download_kaggle(self, DATASET_NAMES = ['amarinderplasma/alphabets-sign-language','/lexset/synthetic-asl-numbers'], PATH_NAME = './data/processed/'):
         api = KaggleApi()
         api.authenticate()
         for DATASET_NAME in DATASET_NAMES:
+            print('Starting ' + DATASET_NAME + ' Download')
             api.dataset_download_files(DATASET_NAME, path = PATH_NAME, unzip=True)
+            print('Completed ' + DATASET_NAME + ' Download')
     
     def move_data(self):
         letter_train_source = os.getcwd() + '/data/processed/asl_alphabet_train'
