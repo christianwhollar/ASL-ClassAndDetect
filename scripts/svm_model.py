@@ -7,7 +7,7 @@ from skimage.io import imread
 from skimage.transform import resize
 from sklearn import svm
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import recall_score
+from sklearn.metrics import recall_score, accuracy_score
 
 class SVMModel():
     '''
@@ -81,10 +81,13 @@ class SVMModel():
             None
         '''
         # Setup Param Dict for GridSearchCV
-        param_grid={'C':[0.1,1,10,100],
-            'gamma':[0.0001,0.001,0.1,1],
-            'kernel':['rbf','poly']}
-  
+        # param_grid={'C':[0.1,1,10,100],
+        #     'gamma':[0.0001,0.001,0.1,1],
+        #     'kernel':['rbf','poly']}
+
+        param_grid={'C':[0.1],
+            'gamma':[0.001],
+            'kernel':['poly']}
         svc=svm.SVC(probability=True)
         self.model=GridSearchCV(svc,param_grid)
         
@@ -101,8 +104,8 @@ class SVMModel():
             None
         '''
         y_pred = self.model.predict(self.x_test)
-        accuracy = self.accuracy_score(y_pred, self.y_test)
-        print(f"The model is {accuracy*100}% accurate")
+        self.accuracy = accuracy_score(y_pred, self.y_test)
+        print(f"The model is {self.accuracy*100}% accurate")
         recall_vals_svm = recall_score(y_true = self.y_test, y_pred = y_pred)
         
         recall_vals_svm_json = json.dumps(recall_vals_svm)

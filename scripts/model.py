@@ -41,7 +41,7 @@ class ModelSetup():
             
         else:
             print('New Model Import')
-            self.model = models.resnet18(pretrained=True)
+            self.model = models.mobilenet_v2(pretrained=True)
             
     def setup(self):
         '''
