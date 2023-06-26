@@ -1,5 +1,10 @@
 from scripts.cpu_unpickler import CPU_Unpickler
 from colorama import Fore, Style
+import json
+import math
+import numpy as np
+import os
+import pickle
 import sys
 import torch
 from torch import nn, optim
@@ -7,10 +12,6 @@ import torch.nn.functional as F
 from torchvision import models
 import ssl
 from tqdm import tqdm
-import math
-import numpy as np
-import os
-import pickle
 
 class ModelSetup():
     '''
@@ -158,7 +159,16 @@ class ModelSetup():
                 
             self.scheduler.step()
             step=0
-    
+            
+        trainlossjson = json.dumps(trainlossarr)
+        testlossjson = json.dumps(trainlossarr)
+        
+        with open(os.getcwd() + "/data/output/trainloss.json", "w") as outfile:
+            outfile.write(trainlossjson)
+            
+        with open(os.getcwd() + "/data/output/testloss.json", "w") as outfile:
+            outfile.write(testlossjson)
+        
     def test(self):
         '''
         Calculate Preds/Acts for Test Data
@@ -233,6 +243,11 @@ class ModelSetup():
             
         self.test_acc = test_acc
         self.recall_vals = recall_vals
+        
+        recall_vals_json = json.dumps(self.recall_vals)
+        with open(os.getcwd() + "/data/output/recall_mn.json", "w") as outfile:
+            outfile.write(recall_vals_json)
+        
         return test_acc, recall
     
     def export(self):        

@@ -21,7 +21,7 @@ if __name__ == '__main__':
     trainloader, testloader = bf.build_dataloaders()
     
     # Transfer Learning - Setup, Train, Test, Export
-    ms = ModelSetup(train_data, trainloader, test_data, testloader, model = '')#'/models/mobilenetv2_asl_letnum.pkl')
+    ms = ModelSetup(train_data, trainloader, test_data, testloader, model = '/models/mobilenetv2_asl_letnum.pkl')
     ms.setup()
     ms.train()
     test_acc, recall_vals = ms.test()

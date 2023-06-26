@@ -7,6 +7,7 @@ from skimage.io import imread
 from skimage.transform import resize
 from sklearn import svm
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import recall_score
 
 class SVMModel():
     '''
@@ -102,7 +103,12 @@ class SVMModel():
         y_pred = self.model.predict(self.x_test)
         accuracy = self.accuracy_score(y_pred, self.y_test)
         print(f"The model is {accuracy*100}% accurate")
+        recall_vals_svm = recall_score(y_true = self.y_test, y_pred = y_pred)
         
+        recall_vals_svm_json = json.dumps(recall_vals_svm)
+        with open(os.getcwd() + "/data/output/recall_svm.json", "w") as outfile:
+            outfile.write(recall_vals_svm_json)
+            
     def export(self):
         '''
         Dump Trained Model to .pkl File
