@@ -1,31 +1,42 @@
-# ASL Classification Project Description
+# **ASL Classification Project Description**
 #### Christian Hollar
+#### christian.hollar@duke.edu
 
+## **Project**
+Build both a deep learning & a non deep learning image classification model to aid in learning american sign language (ASL). 
 
+## **About the Models**
+1. **MobileNetv2 (Deep Learning Model)**
+Able to provide real-time feedback in resource contrained environments like mobile devices. 
+    * Classifier: Dropout, Linear, LogSoftMax
+    * Criterion: Negative Log Likelihood Loss
+2. **Support Vector Machine (Non-Deep Learning Model)**
 
-#### About the Data
+## **About the Data**
 2 Kaggle Datasets:
 * 'amarinderplasma/alphabets-sign-language' : contains real ASL images for letters A - Z, delete, & space (.jpg)
 * 'lexset/synthetic-asl-numbers' : contains GAN generated synthetic ASL images for numbers 1 - 10 (.png)
 
 Summary: 38 Classes: ASL Letters (A-Z), ASL Numbers (1-10), Delete, Nothing, & Space
 
-#### About the Models
-**MobileNetv2 (Deep Learning Model)**
-Able to provide real-time feedback in resource contrained environments like mobile devices. 
-* Classifier: Dropout, Linear, LogSoftMax
-* Criterion: Negative Log Likelihood Loss
+## **How to Run**
+Open the `main.ipynb` in Google Colab and follow the instructions.
 
-**SVM (Non-Deep Learning Model)**
+To just run the Streamlit App, do the following:
 
-
-
-#### Project Structure
-
-
-#### Model Training and Evaluation
-* **SVM (Non-Deep Learning Model)**
-* **MobileNetv2 (Deep Learning Model)**
+**1. Create a new conda environment and activate it:** 
+```
+conda create --name cv python=3.10
+conda activate cv
+```
+**2. Install python package requirements:** 
+```
+pip install -r requirements.txt 
+```
+**3. Run the streamlit app:** 
+```
+python -m streamlit run LearnASL.py
+```
 
 #### Repository Structure
 ```
