@@ -11,6 +11,14 @@
 Summary: 38 Classes: ASL Letters (A-Z), ASL Numbers (1-10), Delete, Nothing, & Space
 
 #### About the Models
+**MobileNetv2 (Deep Learning Model)**
+Able to provide real-time feedback in resource contrained environments like mobile devices. 
+* Classifier: Dropout, Linear, LogSoftMax
+* Criterion: Negative Log Likelihood Loss
+
+**SVM (Non-Deep Learning Model)**
+
+
 
 #### Project Structure
 

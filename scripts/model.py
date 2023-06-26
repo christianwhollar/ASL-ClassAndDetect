@@ -36,7 +36,7 @@ class ModelSetup():
         
         if model:
             filename = os.getcwd() + model
-            self.model = CPU_Unpickler(open(filename, 'rb')).load()
+            self.model = CPU_Unpickler(open(filename, 'rb')).load() 
             
         else:
             print('New Model Import')
