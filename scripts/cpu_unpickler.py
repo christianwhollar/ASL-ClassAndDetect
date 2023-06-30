@@ -1,3 +1,5 @@
+# https://stackoverflow.com/questions/57081727/load-pickle-file-obtained-from-gpu-to-cpu
+
 import io
 import pickle
 import torch
