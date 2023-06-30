@@ -1,3 +1,5 @@
+# https://github.com/IBM/ASL-Pytorch/blob/master/ASL-GPU.ipynb
+
 from scripts.cpu_unpickler import CPU_Unpickler
 from colorama import Fore, Style
 import json
